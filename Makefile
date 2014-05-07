@@ -112,9 +112,11 @@ endif
 
 # -------------------------------------
 IPV4_TARGETS=tracepath ping clockdiff rdisc arping tftpd rarpd
+#4号ip协议的目标范围
 IPV6_TARGETS=tracepath6 traceroute6 ping6
+#6号ip协议的目标范围
 TARGETS=$(IPV4_TARGETS) $(IPV6_TARGETS)
-
+#变量的定义
 CFLAGS=$(CCOPTOPT) $(CCOPT) $(GLIBCFIX) $(DEFINES)
 LDLIBS=$(LDLIB) $(ADDLIB)
 
@@ -127,7 +129,7 @@ TAG:=$(shell date --date=$(TODAY) +s%Y%m%d)
 
 # -------------------------------------
 .PHONY: all ninfod clean distclean man html check-kernel modules snapshot
-
+#伪代码
 all: $(TARGETS)
 
 %.s: %.c
@@ -136,7 +138,7 @@ all: $(TARGETS)
 	$(COMPILE.c) $< $(DEF_$(patsubst %.o,%,$@)) -o $@
 $(TARGETS): %: %.o
 	$(LINK.o) $^ $(LIB_$@) $(LDLIBS) -o $@
-
+#上述是一些汇编,编译,执行文件的过程
 # -------------------------------------
 # COMPILE.c=$(CC) $(CFLAGS) $(CPPFLAGS) -c
 # $< 依赖目标中的第一个目标名字 
@@ -209,6 +211,7 @@ ninfod:
 
 # -------------------------------------
 # modules / check-kernel are only for ancient kernels; obsolete
+#检测内核仅先前的
 check-kernel:
 ifeq ($(KERNEL_INCLUDE),)
 	@echo "Please, set correct KERNEL_INCLUDE"; false
@@ -248,17 +251,26 @@ snapshot:
 	@if [ x"$(UNAME_N)" != x"pleiades" ]; then echo "Not authorized to advance snapshot"; exit 1; fi
         #如果UNAME_N不等于pleiades,然后输出 "not authorized to advance snapshot" 停止离开
 	@echo "[$(TAG)]" > RELNOTES.NEW
+	#输出到
 	@echo >>RELNOTES.NEW
-	@git log --no-merges $(LASTTAG).. | git shortlog >> RELNOTES.NEW
+	#输出重定向到
+	@git log --no-merges $(LASTTAG).. | >> RELNOTES.NEW
+	#git一下汇总并显示最近全部的标志
 	@echo >> RELNOTES.NEW
 	@cat RELNOTES >> RELNOTES.NEW
+	#显示并重定向到
 	@mv RELNOTES.NEW RELNOTES
+	#移动
 	@sed -e "s/^%define ssdate .*/%define ssdate $(DATE)/" iputils.spec > iputils.spec.tmp
+	#处理编辑之后输出到iptiuuls.spec.tmp
 	@mv iputils.spec.tmp iputils.spec
 	@echo "static char SNAPSHOT[] = \"$(TAG)\";" > SNAPSHOT.h
 	@$(MAKE) -C doc snapshot
+	#编译
 	@$(MAKE) man
 	@git commit -a -m "iputils-$(TAG)"
+	#git上传
 	@git tag -s -m "iputils-$(TAG)" $(TAG)
+	#git打个标签
 	@git archive --format=tar --prefix=iputils-$(TAG)/ $(TAG) | bzip2 -9 > ../iputils-$(TAG).tar.bz2
-
+       #  输出两文件的差异           
