@@ -246,6 +246,7 @@ distclean: clean
 # -------------------------------------
 snapshot:
 	@if [ x"$(UNAME_N)" != x"pleiades" ]; then echo "Not authorized to advance snapshot"; exit 1; fi
+        #如果UNAME_N不等于pleiades,然后输出 "not authorized to advance snapshot" 停止离开
 	@echo "[$(TAG)]" > RELNOTES.NEW
 	@echo >>RELNOTES.NEW
 	@git log --no-merges $(LASTTAG).. | git shortlog >> RELNOTES.NEW
