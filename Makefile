@@ -3,14 +3,18 @@
 #
 
 # CC
-CC=gcc
-# Path to parent kernel include files directory
+CC=gcc 
+#指定gcc编译器
+# Path to parent kernel include files directory 内核包含的文件路径
 LIBC_INCLUDE=/usr/include
 # Libraries
 ADDLIB=
 # Linker flags
 LDFLAG_STATIC=-Wl,-Bstatic
+#告诉编译器将参数传递给链接器,使用静态链接
 LDFLAG_DYNAMIC=-Wl,-Bdynamic
+#告诉链接器使用动态链接
+#指定加载库
 LDFLAG_CAP=-lcap
 LDFLAG_GNUTLS=-lgnutls-openssl
 LDFLAG_CRYPTO=-lcrypto
@@ -19,9 +23,9 @@ LDFLAG_RESOLV=-lresolv
 LDFLAG_SYSFS=-lsysfs
 
 #
-# Options
+# Options参数
 #
-
+#变量定义
 # Capability support (with libcap) [yes|static|no]
 USE_CAP=yes
 # sysfs support (with libsysfs - deprecated) [no|yes|static]
@@ -49,7 +53,8 @@ ENABLE_RDISC_SERVER=no
 # -------------------------------------
 # What a pity, all new gccs are buggy and -Werror does not work. Sigh.
 # CCOPT=-fno-strict-aliasing -Wstrict-prototypes -Wall -Werror -g
-CCOPT=-fno-strict-aliasing -Wstrict-prototypes -Wall -g
+#如果函数的声明或定义没有指出参数类型,会报错
+CCOPT=
 CCOPTOPT=-O3
 GLIBCFIX=-D_GNU_SOURCE
 DEFINES=
@@ -133,6 +138,12 @@ $(TARGETS): %: %.o
 	$(LINK.o) $^ $(LIB_$@) $(LDLIBS) -o $@
 
 # -------------------------------------
+# COMPILE.c=$(CC) $(CFLAGS) $(CPPFLAGS) -c
+# $< 依赖目标中的第一个目标名字 
+# $@ 表示目标
+# $^ 所有的依赖目标的集合 
+# 在$(patsubst %.o,%,$@ )中，patsubst把目标中的变量符合后缀是.o的全部删除,  DEF_ping
+# LINK.o把.o文件链接在一起的命令行,缺省值是$(CC) $(LDFLAGS) $(TARGET_ARCH)
 # arping
 DEF_arping = $(DEF_SYSFS) $(DEF_CAP) $(DEF_IDN) $(DEF_WITHOUT_IFADDRS)
 LIB_arping = $(LIB_SYSFS) $(LIB_CAP) $(LIB_IDN)
