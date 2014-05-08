@@ -27,10 +27,13 @@ LDFLAG_SYSFS=-lsysfs
 #
 #变量定义
 # Capability support (with libcap) [yes|static|no]
+#对libcap库文件性能支持
 USE_CAP=yes
 # sysfs support (with libsysfs - deprecated) [no|yes|static]
+#对sysfs的文件系统的支持
 USE_SYSFS=no
 # IDN support (experimental) [no|yes|static]
+#国际域名
 USE_IDN=no
 
 # Do not use getifaddrs [no|yes|static]
@@ -39,6 +42,7 @@ WITHOUT_IFADDRS=no
 ARPING_DEFAULT_DEVICE=
 
 # GNU TLS library for ping6 [yes|no|static]
+#使用GUNTLS库实现TLS加密协议
 USE_GNUTLS=yes
 # Crypto library for ping6 [shared|static]
 USE_CRYPTO=shared
@@ -48,15 +52,16 @@ USE_RESOLV=yes
 ENABLE_PING6_RTHDR=no
 
 # rdisc server (-r option) support [no|yes]
+#不支持rdisc（路由器发现守护程序）服务器
 ENABLE_RDISC_SERVER=no
-
+#使用各类原库
 # -------------------------------------
 # What a pity, all new gccs are buggy and -Werror does not work. Sigh.
 # CCOPT=-fno-strict-aliasing -Wstrict-prototypes -Wall -Werror -g
 #如果函数的声明或定义没有指出参数类型,会报错
 CCOPT=
-CCOPTOPT=-O3
-GLIBCFIX=-D_GNU_SOURCE
+CCOPTOPT=-O3#3级优化
+GLIBCFIX=-D_GNU_SOURCE#符合GNU协议
 DEFINES=
 LDLIB=
 #给出相关定义变量参数
@@ -90,14 +95,14 @@ ifneq ($(USE_SYSFS),no)
 endif
 
 # USE_IDN: DEF_IDN, LIB_IDN
-#同上
+#同上(国际化域名)
 ifneq ($(USE_IDN),no)
 	DEF_IDN = -DUSE_IDN
 	LIB_IDN = $(call FUNC_LIB,$(USE_IDN),$(LDFLAG_IDN))
 endif
 
 # WITHOUT_IFADDRS: DEF_WITHOUT_IFADDRS
-#同上
+#同上(本地ip地址)
 ifneq ($(WITHOUT_IFADDRS),no)
 	DEF_WITHOUT_IFADDRS = -DWITHOUT_IFADDRS
 endif
@@ -154,7 +159,7 @@ $(TARGETS): %: %.o
 # 在$(patsubst %.o,%,$@ )中，patsubst把目标中的变量符合后缀是.o的全部删除,  DEF_ping
 # LINK.o把.o文件链接在一起的命令行,缺省值是$(CC) $(LDFLAGS) $(TARGET_ARCH)
 # arping
-#参数赋值
+#设置arping（ 在指定网卡上发送ARP请求指定地址，可用来直接 ping MAC 地址，以及找出那些 ip 地址被哪些电脑所使用）
 DEF_arping = $(DEF_SYSFS) $(DEF_CAP) $(DEF_IDN) $(DEF_WITHOUT_IFADDRS)
 LIB_arping = $(LIB_SYSFS) $(LIB_CAP) $(LIB_IDN)
 #判断语句
@@ -162,7 +167,7 @@ ifneq ($(ARPING_DEFAULT_DEVICE),)
 DEF_arping += -DDEFAULT_DEVICE=\"$(ARPING_DEFAULT_DEVICE)\"
 endif
 
-# clockdiff
+# clockdiff:设置clockdiff 检测两台主机的时间差
 DEF_clockdiff = $(DEF_CAP)
 LIB_clockdiff = $(LIB_CAP)
 #参数赋值
@@ -209,7 +214,7 @@ tftpd.o tftpsubs.o: tftp.h
 # -------------------------------------
 # ninfod
 ninfod:
-	@set -e; \
+	@set -e; \# 加@表示makefile执行这条命令时不显示出来，在"set -e"之后出现的代码，一旦出现了返回值非零，整个脚本就会立即退出
 		if [ ! -f ninfod/Makefile ]; then \
 			cd ninfod; \
 			./configure; \
@@ -219,7 +224,7 @@ ninfod:
 
 # -------------------------------------
 # modules / check-kernel are only for ancient kernels; obsolete
-#检测内核仅先前的
+#检测内核仅低版本的
 check-kernel:
 #判断语句，执行语句（shell脚本语句的联合使用）
 ifeq ($(KERNEL_INCLUDE),)
@@ -234,6 +239,9 @@ modules: check-kernel
 	$(MAKE) KERNEL_INCLUDE=$(KERNEL_INCLUDE) -C Modules
 
 # -------------------------------------
+#生成帮助文档
+#生成html文档
+#distclean:清除后缀为“.o”的文件及可执行文件,但同时也将configure生成的文件全部删除掉，包括Makefile文件
 man:
 	$(MAKE) -C doc man
 
